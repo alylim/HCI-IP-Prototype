@@ -6,9 +6,8 @@ import tailwindcss from '@tailwindcss/vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  build: {
-    sourcemap: true, // Ensure this is set to true
-  },
+  base: "/HCI-IP-Prototype/",
+  build: { outDir: 'dist' },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
