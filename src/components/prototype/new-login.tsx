@@ -1,17 +1,17 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import { Input, Button } from '@/components/ui';
 import { Label } from '@radix-ui/react-label';
 import { Plus } from 'lucide-react';
 
-type AdditionalFieldType = {
-  label: string;
-  value: string;
-};
+// type AdditionalFieldType = {
+//   label: string;
+//   value: string;
+// };
 
 function LoginForm() {
-  const [additionlFields, setAdditionalFields] = useState<
-    Array<AdditionalFieldType>
-  >([]);
+  //   const [additionlFields, setAdditionalFields] = useState<
+  //     Array<AdditionalFieldType>
+  //   >([]);
 
   return (
     <div>
