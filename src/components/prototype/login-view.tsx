@@ -33,6 +33,14 @@ function ViewLogin({ data }: { data: LoginType }) {
       <div>
         <Item variant="default">
           <ItemContent>
+            <ItemTitle>{data.domain}</ItemTitle>
+          </ItemContent>
+        </Item>
+      </div>
+
+      <div>
+        <Item variant="default">
+          <ItemContent>
             <Label>Username</Label>
             <ItemDescription>{data.username}</ItemDescription>
           </ItemContent>
