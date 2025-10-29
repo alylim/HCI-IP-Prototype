@@ -34,6 +34,7 @@ function ViewLogin({ data }: { data: LoginType }) {
         <Item variant="default">
           <ItemContent>
             <ItemTitle>{data.domain}</ItemTitle>
+            <ItemDescription>{data.category}</ItemDescription>
           </ItemContent>
         </Item>
       </div>

@@ -1,27 +1,31 @@
-// import { useState } from 'react';
-import { Input, Button } from '@/components/ui';
+import { useState } from 'react';
+import { Input } from '@/components/ui';
 import { Label } from '@radix-ui/react-label';
-import { Plus } from 'lucide-react';
+import { CustomFields } from './custom-fields';
 
-// type AdditionalFieldType = {
-//   label: string;
-//   value: string;
-// };
-
+type AdditionalField = {
+  id: number;
+  label: string;
+  type: 'text' | 'hidden';
+  value: string;
+};
 function LoginForm() {
-  //   const [additionlFields, setAdditionalFields] = useState<
-  //     Array<AdditionalFieldType>
-  //   >([]);
+  const [formData, setFormData] = useState();
+  const [additionlFields, setAdditionalFields] = useState<AdditionalField[]>(
+    [],
+  );
+
+  const [color, setColor] = useState<string | null>(null);
 
   return (
     <div>
-      <Label></Label>
+      <Label>Add new login</Label>
       <div>
         <Label>Website</Label>
-        <Input />
+        <Input placeholder="example.com" />
         <Label>Category</Label>
         {/* change to combobox */}
-        <Input />
+        <Input placeholder="e.g. Work, Personal" />
       </div>
 
       <Label>Credentials</Label>
@@ -33,12 +37,7 @@ function LoginForm() {
       </div>
 
       <Label>Additional options</Label>
-      <Button>
-        <>
-          <Plus className="w-4 h-4" />
-          Add field
-        </>
-      </Button>
+      <CustomFields fields={additionlFields} onChange={setAdditionalFields} />
     </div>
   );
 }
