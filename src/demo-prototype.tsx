@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Lock, CircleUserRound } from 'lucide-react';
+import { Plus, Lock, CircleUserRound, Search } from 'lucide-react';
 import { EntryRow } from './components/prototype/entry-row';
 import { LoginForm, type LoginType } from './components/prototype/new-login';
 import { ViewLogin } from './components/prototype/login-view';
@@ -13,34 +13,16 @@ import {
   AccordionContent,
 } from './components/ui/accordion';
 import { EmptyPage } from './components/prototype/empty-page';
+import { Input } from './components/ui/input';
 
 type FormMode = 'view' | 'adding' | 'editing';
-
-const mockData = [
-  {
-    id: crypto.randomUUID(),
-    domain: 'Netflix',
-    uri: 'netflix.com',
-    category: 'streaming',
-    username: 'hello@gmail.com',
-    password: 'hunter22',
-  },
-  {
-    id: crypto.randomUUID(),
-    domain: 'Hulu',
-    uri: 'hulu.com',
-    category: 'streaming',
-    username: 'hello@gmail.com',
-    password: 'hunter23',
-  },
-];
 
 function Prototype() {
   const [logins, setLogins] = useState<LoginType[]>([]);
   const [openCategories, setOpenCategories] = useState<string[]>([]);
   const [selectedLogin, setSelectedLogin] = useState<LoginType | null>(null);
-
   const [formMode, setFormMode] = useState<FormMode>('view');
+  const [searchQuery, setSearchQuery] = useState('');
 
   function handleSubmitLogin(newLogin: LoginType) {
     const exists = logins.some((l) => l.id === newLogin.id);
@@ -82,7 +64,23 @@ function Prototype() {
     setFormMode('view');
   }
 
-  const grouped = logins.reduce((acc, item) => {
+  const filteredLogins = logins.filter((login) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    const category = (login.category || 'Uncategorized').toLowerCase();
+    const domain = (login.domain || '').toLowerCase();
+    const uri = (login.uri || '').toLowerCase();
+    const username = (login.username || '').toLowerCase();
+
+    return (
+      category.includes(query) ||
+      domain.includes(query) ||
+      uri.includes(query) ||
+      username.includes(query)
+    );
+  });
+
+  const grouped = filteredLogins.reduce((acc, item) => {
     const key = item.category ?? 'Uncategorized';
     if (!acc[key]) acc[key] = [];
     acc[key].push(item);
@@ -114,40 +112,62 @@ function Prototype() {
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
                 My Vault
               </h2>
-              <Accordion
-                className="w-full space-y-1"
-                type="multiple"
-                value={openCategories}
-                onValueChange={setOpenCategories}
-              >
-                {Object.entries(grouped).map(([category, entries]) => (
-                  <AccordionItem
-                    key={category}
-                    value={category}
-                    className="border-none"
-                  >
-                    <AccordionTrigger className="bg-card border border-border rounded-md px-4 py-3 hover:bg-accent/50 font-medium text-sm data-[state=open]:rounded-b-none data-[state=open]:border-b-0">
-                      <div className="flex items-center gap-2">
-                        <span>{category}</span>
-                        <span className="text-xs text-muted-foreground">
-                          ({entries.length})
-                        </span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="border-x border-b border-border rounded-b-md bg-card">
-                      <div className="py-1">
-                        {entries.map((entry) => (
-                          <EntryRow
-                            key={entry.id}
-                            data={entry}
-                            onClick={() => handleSelectedLogin(entry)}
-                          />
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search vault..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 w-64 h-9"
+                  />
+                </div>
+              </div>
+
+              {Object.keys(grouped).length === 0 && searchQuery.trim() ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-sm">
+                    No items found matching "{searchQuery}"
+                  </p>
+                </div>
+              ) : (
+                <Accordion
+                  className="w-full space-y-1"
+                  type="multiple"
+                  value={openCategories}
+                  onValueChange={setOpenCategories}
+                >
+                  {Object.entries(grouped).map(([category, entries]) => (
+                    <AccordionItem
+                      key={category}
+                      value={category}
+                      className="border-none"
+                    >
+                      <AccordionTrigger className="bg-card border border-border rounded-md px-4 py-3 hover:bg-accent/50 font-medium text-sm data-[state=open]:rounded-b-none data-[state=open]:border-b-0">
+                        <div className="flex items-center gap-2">
+                          <span>{category}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({entries.length})
+                          </span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="border-x border-b border-border rounded-b-md bg-card">
+                        <div className="py-1">
+                          {entries.map((entry) => (
+                            <EntryRow
+                              key={entry.id}
+                              data={entry}
+                              onClick={() => handleSelectedLogin(entry)}
+                            />
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
             </div>
 
             <div className="lg:col-span-3">
