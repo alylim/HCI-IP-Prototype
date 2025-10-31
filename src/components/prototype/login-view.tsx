@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Copy } from 'lucide-react';
+import { Eye, EyeOff, Copy, PencilLine } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Item,
@@ -11,16 +11,15 @@ import {
 import { Button } from '@/components/ui';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@radix-ui/react-label';
+import type { LoginType } from './new-login';
 
-type LoginType = {
-  username: string;
-  password: string;
-  category?: string;
-  domain: string;
-  additionalFields?: Array<{ label: string; value: string }>;
-};
-
-function ViewLogin({ data }: { data: LoginType }) {
+function ViewLogin({
+  data,
+  onEdit,
+}: {
+  data: LoginType;
+  onEdit: (login: LoginType) => void;
+}) {
   const [viewPassword, setViewPassword] = useState(false);
 
   function toCopy(value: string) {
@@ -36,6 +35,9 @@ function ViewLogin({ data }: { data: LoginType }) {
             <ItemTitle>{data.domain}</ItemTitle>
           </ItemContent>
         </Item>
+        <Button variant="outline" size="sm" onClick={() => onEdit(data)}>
+          <PencilLine /> Edit
+        </Button>
       </div>
 
       <div>
