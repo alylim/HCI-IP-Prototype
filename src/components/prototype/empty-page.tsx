@@ -24,7 +24,7 @@ function EmptyPage({
         <EmptyMedia variant="icon">
           <Vault />
         </EmptyMedia>
-        <EmptyTitle>No logins yet</EmptyTitle>
+        <EmptyTitle>Your vault is empty</EmptyTitle>
         <EmptyDescription>
           You haven&apos;t created any logins yet. Get started by creating your
           first login.

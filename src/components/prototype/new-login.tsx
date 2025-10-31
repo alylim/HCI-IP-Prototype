@@ -1,8 +1,14 @@
+'use client';
+
+import type React from 'react';
+
 import { useState } from 'react';
-import { Button, Input } from '@/components/ui';
-import { Label } from '@radix-ui/react-label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { CustomFields } from './custom-fields';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Trash2 } from 'lucide-react';
+import { DeleteDialog } from './delete-dialog';
 
 type AdditionalField = {
   id: string;
@@ -34,14 +40,21 @@ type LoginFormProps = {
   addLogin: (values: LoginType) => void;
   defaultValues?: LoginType;
   onCancel?: () => void;
+  onDelete?: (loginId: string) => void;
 };
 
-function LoginForm({ addLogin, defaultValues, onCancel }: LoginFormProps) {
+function LoginForm({
+  addLogin,
+  defaultValues,
+  onCancel,
+  onDelete,
+}: LoginFormProps) {
   const [viewPassword, setViewPassword] = useState(false);
   const [formData, setFormData] = useState(defaultValues || emptyLogin);
   const [additionalFields, setAdditionalFields] = useState<AdditionalField[]>(
     defaultValues?.additionalFields || [],
   );
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -61,111 +74,164 @@ function LoginForm({ addLogin, defaultValues, onCancel }: LoginFormProps) {
     setAdditionalFields([]);
   }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <div className="space-y-4">
-        <Label className="font-semibold text-md py-4">
-          {defaultValues ? 'Edit login' : 'Add new login'}
-        </Label>
-        <div className="space-y-2">
-          <div>
-            <StyledLabel>Website/Application</StyledLabel>
-            <Input
-              name="domain"
-              placeholder="e.g. bitwarden.com"
-              value={formData.domain}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <StyledLabel>Category</StyledLabel>
-            <Input
-              name="category"
-              placeholder="e.g. Work, Personal"
-              value={formData.category}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <StyledLabel>URL</StyledLabel>
-            <Input
-              name="uri"
-              placeholder="Enter the URL of the application or website for autofill"
-              value={formData.uri}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
+  function handleDelete() {
+    if (defaultValues && onDelete) {
+      onDelete(defaultValues.id);
+      setShowDeleteDialog(false);
+    }
+  }
 
-        <Label>Credentials</Label>
-        <div className="space-y-2">
-          <div>
-            <StyledLabel htmlFor="username">Username</StyledLabel>
-            <Input
-              name="username"
-              placeholder="user@example.com"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <div className="space-y-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">
+                {defaultValues ? 'Edit Login' : 'Add Login'}
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {defaultValues
+                  ? 'Update your login information'
+                  : 'Create a new login entry'}
+              </p>
+            </div>
+            {defaultValues && onDelete && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Delete
+              </Button>
+            )}
           </div>
-          <div>
-            <StyledLabel>Password</StyledLabel>
-            <div className="relative">
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <StyledLabel>Category</StyledLabel>
               <Input
-                className="pr-10"
-                name="password"
-                type={viewPassword ? 'text' : 'password'}
-                value={formData.password}
+                name="category"
+                placeholder="e.g. Work, Personal, Streaming"
+                value={formData.category}
+                onChange={handleChange}
+                className="h-10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <StyledLabel>Website/Application name</StyledLabel>
+              <Input
+                name="domain"
+                placeholder="e.g. Netflix, Gmail"
+                value={formData.domain}
                 onChange={handleChange}
                 required
+                className="h-10"
               />
-              <Button
-                variant="ghost"
-                className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent"
-                size="icon"
-                type="button"
-                onClick={() => setViewPassword((prev) => !prev)}
-              >
-                {viewPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </Button>
+            </div>
+
+            <div className="space-y-2">
+              <StyledLabel>URL</StyledLabel>
+              <Input
+                name="uri"
+                placeholder="https://example.com"
+                value={formData.uri}
+                onChange={handleChange}
+                className="h-10"
+              />
+              <p className="text-xs text-muted-foreground">
+                Used for autofill detection
+              </p>
             </div>
           </div>
-        </div>
 
-        <Label>Additional options</Label>
-        <CustomFields
-          fields={additionalFields}
-          onChange={setAdditionalFields}
-        />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <StyledLabel htmlFor="username">Username</StyledLabel>
+              <Input
+                name="username"
+                placeholder="user@example.com"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className="h-10"
+              />
+            </div>
 
-        <div className="pt-2 flex gap-2">
-          <Button type="submit" className="flex-1">
-            {defaultValues ? 'Save changes' : 'Save login'}
-          </Button>
-          {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={onCancel}
-            >
-              Cancel
+            <div className="space-y-2">
+              <StyledLabel>Password</StyledLabel>
+              <div className="relative">
+                <Input
+                  className="pr-10 h-10"
+                  name="password"
+                  type={viewPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+                <Button
+                  variant="ghost"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+                  size="icon"
+                  type="button"
+                  onClick={() => setViewPassword((prev) => !prev)}
+                >
+                  {viewPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <StyledLabel>Custom Fields</StyledLabel>
+            <CustomFields
+              fields={additionalFields}
+              onChange={setAdditionalFields}
+            />
+          </div>
+
+          <div className="pt-4 flex gap-3 border-t border-border">
+            {onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 h-10 bg-transparent"
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" className="flex-1 h-10">
+              {defaultValues ? 'Save' : 'Save'}
             </Button>
-          )}
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+      <DeleteDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onDelete={handleDelete}
+        domain={defaultValues?.domain}
+      />
+    </div>
   );
 }
 
 export { LoginForm };
 
-const StyledLabel = ({ children }: React.ComponentProps<typeof Label>) => (
-  <Label className="text-sm text-muted-foreground block">{children}</Label>
+const StyledLabel = ({
+  children,
+  htmlFor,
+}: React.ComponentProps<typeof Label>) => (
+  <Label htmlFor={htmlFor} className="text-sm font-medium text-foreground">
+    {children}
+  </Label>
 );
