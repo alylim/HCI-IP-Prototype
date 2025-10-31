@@ -27,14 +27,14 @@ export type LoginType = {
   additionalFields?: Array<AdditionalField>;
 };
 
-const emptyLogin = {
+const emptyLogin = () => ({
   id: crypto.randomUUID(),
   domain: '',
   category: '',
   username: '',
   password: '',
   uri: '',
-};
+});
 
 type LoginFormProps = {
   addLogin: (values: LoginType) => void;
@@ -50,7 +50,7 @@ function LoginForm({
   onDelete,
 }: LoginFormProps) {
   const [viewPassword, setViewPassword] = useState(false);
-  const [formData, setFormData] = useState(defaultValues || emptyLogin);
+  const [formData, setFormData] = useState(defaultValues || emptyLogin());
   const [additionalFields, setAdditionalFields] = useState<AdditionalField[]>(
     defaultValues?.additionalFields || [],
   );
@@ -70,7 +70,7 @@ function LoginForm({
       additionalFields,
     });
 
-    setFormData(emptyLogin);
+    setFormData(emptyLogin());
     setAdditionalFields([]);
   }
 
