@@ -7,24 +7,26 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Button } from '@/components/ui';
+import type { LoginType } from './new-login';
 
-function EntryRow({
-  domain,
-  username,
-  onClick,
-}: {
-  domain: string;
-  username: string;
-  onClick: () => void;
-}) {
+function EntryRow({ data, onClick }: { data: LoginType; onClick: () => void }) {
+  function handleLaunch() {
+    const url =
+      data.uri.startsWith('http://') || data.uri.startsWith('https://')
+        ? data.uri
+        : `https://${data.uri}`;
+
+    window.open(url, '_blank'); // open in new tab
+  }
+
   return (
-    <Item variant="outline">
+    <Item variant="outline" onClick={onClick}>
       <ItemContent>
-        <ItemTitle>{domain}</ItemTitle>
-        <ItemDescription>{username}</ItemDescription>
+        <ItemTitle>{data.domain}</ItemTitle>
+        <ItemDescription>{data.username}</ItemDescription>
       </ItemContent>
       <ItemActions>
-        <Button type="button" onClick={onClick}>
+        <Button type="button" onClick={handleLaunch}>
           Launch
         </Button>
         <ChevronRightIcon className="size-4" />
